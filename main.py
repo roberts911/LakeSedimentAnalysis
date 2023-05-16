@@ -87,7 +87,6 @@ def display_chart():
     wybrane_explode = [0.4 if etykieta == 'Pb' else 0 for etykieta in wybrane_etykiety]
     wedges, labels = ax.pie(wybrane_wartosci, labels=wybrane_wartosci, explode=wybrane_explode)
 
-
     #Utwórz legendę
     ax.legend(wedges, wybrane_etykiety, title="Pierwiastki w mg/kg sm", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
 
