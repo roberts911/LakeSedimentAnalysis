@@ -12,13 +12,13 @@ wb = openpyxl.load_workbook('ocena-jakosci-osadow-jeziora-2021_wybrane_pierwisat
 sheet = wb.active
 
 # Utwórz listę do przechowywania nazw jezior
-nazwy_jezior = []
+lake_names = []
 
 # Pobierz nazwy jezior z kolumny D i zapisz je w liście nazwy_jezior
 for row in sheet.iter_rows(min_row=6, min_col=4, values_only=True):
-    nazwa_jeziora = row[0]
-    if nazwa_jeziora is not None:
-        nazwy_jezior.append(nazwa_jeziora)
+    lake_name = row[0]
+    if lake_name is not None:
+        lake_names.append(lake_name)
 # Utwórz interfejs użytkownika
 root = tk.Tk()
 root.title("Zawartość pierwiastków w jeziorze")
@@ -34,7 +34,7 @@ content_frame.place(relx=0.5, rely=0.4, anchor=tk.CENTER)
 selected_lake = tk.StringVar()
 lake_label = ttk.Label(content_frame, text="Wybierz jezioro:")
 lake_label.pack(pady=10)
-lake_dropdown = ttk.Combobox(content_frame, textvariable=selected_lake, values=nazwy_jezior)
+lake_dropdown = ttk.Combobox(content_frame, textvariable=selected_lake, values=lake_names)
 lake_dropdown.pack()
 
 # Dodaj etykietę dla wyboru pierwiastków
@@ -57,41 +57,41 @@ for index, row in enumerate(sheet.iter_rows(min_row=5, max_col=13, max_row=5, va
 #Utwórz funkcję wyświetlającą wykres kołowy dla wybranego jeziora
 def display_chart():
     # Pobierz nazwę wybranego jeziora
-    nazwa_jeziora = selected_lake.get()
+    lake_name = selected_lake.get()
     # Pobierz wartości pierwiastków dla wybranego jeziora
-    wartosci_pierwiastkow = []
-    etykiety_pierwiastkow = []
+    root_values = []
+    root_labels = []
     for row in sheet.iter_rows(min_row=6, max_col=13, values_only=True):
-        nazwa = row[3]
-        if nazwa == nazwa_jeziora:
-            for komorka in row[6:13]:
-                wartosci_pierwiastkow.append(komorka)
+        name = row[3]
+        if name == lake_name:
+            for cell in row[6:13]:
+                root_values.append(cell)
 
     for row in sheet.iter_rows(min_row=5, max_col=13, max_row=5, values_only=True):
-        for komorka in row[6:13]:
-            etykiety_pierwiastkow.append(komorka)
+        for cell in row[6:13]:
+            root_labels.append(cell)
  
     #Wybierz tylko wybrane pierwiastki
-    wybrane_wartosci = []
-    wybrane_etykiety = []
+    selected_values = []
+    selected_labels = []
 
     for i, var in enumerate(element_vars):
         if var.get():
-            wybrane_wartosci.append(wartosci_pierwiastkow[i + 1])
-            wybrane_etykiety.append(etykiety_pierwiastkow[i + 1])
+            selected_values.append(root_values[i + 1])
+            selected_labels.append(root_labels[i + 1])
 
     #Utwórz wykres kołowy
     fig, ax = plt.subplots(figsize=(18, 8))
     ax.axis('equal')
-    ax.set_title(f'Zawartość pierwiastków w {nazwa_jeziora} w roku 2021')
-    wybrane_explode = [0.4 if etykieta == 'Pb' else 0 for etykieta in wybrane_etykiety]
-    wedges, labels = ax.pie(wybrane_wartosci, labels=wybrane_wartosci, explode=wybrane_explode)
+    ax.set_title(f'Zawartość pierwiastków w {lake_name} w roku 2021')
+    selected_explode = [0.4 if etykieta == 'Pb' else 0 for etykieta in selected_labels]
+    wedges, labels = ax.pie(selected_values, labels=selected_values, explode=selected_explode)
 
     #Utwórz legendę
-    ax.legend(wedges, wybrane_etykiety, title="Pierwiastki w mg/kg sm", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+    ax.legend(wedges, selected_labels, title="Pierwiastki w mg/kg sm", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
 
     #Label z pH pod wykresem
-    ax.text(0, -1.5, f'pH: {wartosci_pierwiastkow[0]}', fontsize=12, ha='center')
+    ax.text(0, -1.5, f'pH: {root_values[0]}', fontsize=12, ha='center')
 
     #Wyświetlanie wykresu
     plt.show()
@@ -103,33 +103,33 @@ display_button.pack(pady=10)
 #Utwórz przycisk, aby wyświetlić mapę dla wybranego jeziora
 def display_map():
     # Pobierz nazwę wybranego jeziora
-    nazwa_jeziora = selected_lake.get()
+    lake_name = selected_lake.get()
 
     # Usuń myślniki i wszystko po nich z nazwy jeziora
-    nazwa_jeziora = nazwa_jeziora.split("-")[0].strip()
+    lake_name = lake_name.split("-")[0].strip()
 
     # Użyj geokodera, aby pobrać koordynaty geograficzne dla wybranego jeziora
     user_agent = UserAgent()
     geolocator = Nominatim(user_agent=user_agent.random)
-    location = geolocator.geocode(nazwa_jeziora)
+    location = geolocator.geocode(lake_name)
     if location is not None:
         lat, lon = location.latitude, location.longitude
         # Utwórz mapę z wybranym jeziorem
-        jeziora_mapa = folium.Map(location=[lat, lon], zoom_start=13)
+        lake_map = folium.Map(location=[lat, lon], zoom_start=13)
 
         # Dodaj marker z nazwą jeziora i koordynatami
         folium.Marker(
             location=[lat, lon],
-            popup=nazwa_jeziora,
+            popup=lake_name,
             icon=folium.Icon(color='blue')
-        ).add_to(jeziora_mapa)
+        ).add_to(lake_map)
 
         # Dodaj interaktywny popup z koordynatami
-        folium.LatLngPopup().add_to(jeziora_mapa)
+        folium.LatLngPopup().add_to(lake_map)
 
         # Wyświetl mapę w przeglądarce
-        jeziora_mapa.save('jeziora_mapa.html')
-        webbrowser.open('jeziora_mapa.html')
+        lake_map.save('lake_map.html')
+        webbrowser.open('lake_map.html')
     else:
         print("Nie udało się odnaleźć koordynat dla tego jeziora.")
 
