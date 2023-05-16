@@ -1,149 +1,150 @@
-import matplotlib.pyplot as plt
-import openpyxl
 import tkinter as tk
 from tkinter import ttk
+import openpyxl
+import matplotlib.pyplot as plt
 import folium
 import webbrowser
 from geopy.geocoders import Nominatim
 from fake_useragent import UserAgent
 
-# Wczytaj plik Excel
-wb = openpyxl.load_workbook('ocena-jakosci-osadow-jeziora-2021_wybrane_pierwisatki.xlsx')
-sheet = wb.active
+class LakeDataApp:
 
-# Utwórz listę do przechowywania nazw jezior
-nazwy_jezior = []
+    EXCEL_START_ROW = 6
+    EXCEL_START_COL = 4
+    ELEMENTS_START_COL = 7
+    ELEMENTS_END_COL = 13
+    EXCEL_FILE_PATH = 'ocena-jakosci-osadow-jeziora-2021_wybrane_pierwisatki.xlsx'
 
-# Pobierz nazwy jezior z kolumny D i zapisz je w liście nazwy_jezior
-for row in sheet.iter_rows(min_row=6, min_col=4, values_only=True):
-    nazwa_jeziora = row[0]
-    if nazwa_jeziora is not None:
-        nazwy_jezior.append(nazwa_jeziora)
-# Utwórz interfejs użytkownika
-root = tk.Tk()
-root.title("Zawartość pierwiastków w jeziorze")
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("Zawartość pierwiastków w jeziorze")
+        self.root.geometry("600x400")
+        self.content_frame = ttk.Frame(self.root)
+        self.content_frame.place(relx=0.5, rely=0.4, anchor=tk.CENTER)
+        self.lake_names = self.get_lake_names()
+        self.selected_lake = tk.StringVar()
+        self.element_vars = []
+        self.wb = openpyxl.load_workbook(self.EXCEL_FILE_PATH)
+        self.sheet = self.wb.active
+        self.build()
 
-# Ustaw rozmiar okna
-root.geometry("600x400")
+    def build(self):
+        self.build_lake_dropdown()
+        self.build_elements_checkbuttons()
+        self.build_display_chart_button()
+        self.build_display_map_button()
 
-# Utwórz główną ramkę dla zawartości
-content_frame = ttk.Frame(root)
-content_frame.place(relx=0.5, rely=0.4, anchor=tk.CENTER)
+    def get_lake_names(self):
+        wb = openpyxl.load_workbook(self.EXCEL_FILE_PATH)
+        sheet = wb.active
+        lake_names = []
 
-# Utwórz rozwijaną listę do wyboru jeziora
-selected_lake = tk.StringVar()
-lake_label = ttk.Label(content_frame, text="Wybierz jezioro:")
-lake_label.pack(pady=10)
-lake_dropdown = ttk.Combobox(content_frame, textvariable=selected_lake, values=nazwy_jezior)
-lake_dropdown.pack()
+        for row in sheet.iter_rows(min_row=self.EXCEL_START_ROW, min_col=self.EXCEL_START_COL, values_only=True):
+            lake_name = row[0]
+            if lake_name is not None:
+                lake_names.append(lake_name)
+        
+        return lake_names
 
-# Dodaj etykietę dla wyboru pierwiastków
-elements_label = ttk.Label(content_frame, text="Wybierz pierwiastki:")
-elements_label.pack(pady=10)
+    def build_lake_dropdown(self):
+        lake_label = ttk.Label(self.content_frame, text="Wybierz jezioro:")
+        lake_label.pack(pady=10)
+        lake_dropdown = ttk.Combobox(self.content_frame, textvariable=self.selected_lake, values=self.lake_names)
+        lake_dropdown.pack()
 
-# Utwórz ramkę dla przycisków CheckBox
-checkbox_frame = ttk.Frame(content_frame)
-checkbox_frame.pack(pady=10)
+    def build_elements_checkbuttons(self):
+        elements_label = ttk.Label(self.content_frame, text="Wybierz pierwiastki:")
+        elements_label.pack(pady=10)
+        checkbox_frame = ttk.Frame(self.content_frame)
+        checkbox_frame.pack(pady=10)
 
-# Utwórz przyciski CheckBox dla każdego pierwiastka
-element_vars = []
-for index, row in enumerate(sheet.iter_rows(min_row=5, max_col=13, max_row=5, values_only=True)):
-    for col, element in enumerate(row[7:13]):
-        element_var = tk.BooleanVar()
-        element_checkbox = ttk.Checkbutton(checkbox_frame, text=element, variable=element_var)
-        element_checkbox.grid(row=index, column=col, padx=10)
-        element_vars.append(element_var)
+        for index, row in enumerate(self.sheet.iter_rows(min_row=self.EXCEL_START_ROW-1, max_row=self.EXCEL_START_ROW-1, max_col=self.ELEMENTS_END_COL, values_only=True)):
+            for col, element in enumerate(row[self.ELEMENTS_START_COL-1:self.ELEMENTS_END_COL]):
+                element_var = tk.BooleanVar()
+                element_checkbox = ttk.Checkbutton(checkbox_frame, text=element, variable=element_var)
+                element_checkbox.grid(row=index, column=col, padx=10)
+                self.element_vars.append(element_var)
 
-#Utwórz funkcję wyświetlającą wykres kołowy dla wybranego jeziora
-def display_chart():
-    # Pobierz nazwę wybranego jeziora
-    nazwa_jeziora = selected_lake.get()
-    # Pobierz wartości pierwiastków dla wybranego jeziora
-    wartosci_pierwiastkow = []
-    etykiety_pierwiastkow = []
-    for row in sheet.iter_rows(min_row=6, max_col=13, values_only=True):
-        nazwa = row[3]
-        if nazwa == nazwa_jeziora:
-            for komorka in row[6:13]:
-                wartosci_pierwiastkow.append(komorka)
+    def build_display_chart_button(self):
+        display_button = ttk.Button(self.content_frame, text="Wyświetl wykres", command=self.display_chart)
+        display_button.pack(pady=10)
 
-    for row in sheet.iter_rows(min_row=5, max_col=13, max_row=5, values_only=True):
-        for komorka in row[6:13]:
-            etykiety_pierwiastkow.append(komorka)
- 
-    #Wybierz tylko wybrane pierwiastki
-    wybrane_wartosci = []
-    wybrane_etykiety = []
-
-    for i, var in enumerate(element_vars):
-        if var.get():
-            wybrane_wartosci.append(wartosci_pierwiastkow[i + 1])
-            wybrane_etykiety.append(etykiety_pierwiastkow[i + 1])
-
-    #Utwórz wykres kołowy
-    fig, ax = plt.subplots(figsize=(18, 8))
-    ax.axis('equal')
-    ax.set_title(f'Zawartość pierwiastków w {nazwa_jeziora} w roku 2021')
-    wybrane_explode = [0.4 if etykieta == 'Pb' else 0 for etykieta in wybrane_etykiety]
-    wedges, labels = ax.pie(wybrane_wartosci, labels=wybrane_wartosci, explode=wybrane_explode)
+    def build_display_map_button(self):
+        display_map_button = ttk.Button(self.content_frame, text="Wyświetl mapę", command=self.display_map)
+        display_map_button.pack(pady=10)
 
 
-    #Utwórz legendę
-    ax.legend(wedges, wybrane_etykiety, title="Pierwiastki w mg/kg sm", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+    def display_chart(self):
+        lake_name = self.selected_lake.get()
+        element_values, element_labels = self.get_element_values_and_labels(lake_name)
+        selected_values, selected_labels = self.get_selected_element_values_and_labels(element_values, element_labels)
 
-    #Label z pH pod wykresem
-    ax.text(0, -1.5, f'pH: {wartosci_pierwiastkow[0]}', fontsize=12, ha='center')
+        fig, ax = plt.subplots(figsize=(18, 8))
+        ax.axis('equal')
+        ax.set_title(f'Zawartość pierwiastków w {lake_name} w roku 2021')
+        selected_explode = [0.4 if label == 'Pb' else 0 for label in selected_labels]
+        wedges, labels = ax.pie(selected_values, labels=selected_values, explode=selected_explode)
+        ax.legend(wedges, selected_labels, title="Pierwiastki w mg/kg sm", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+        ax.text(0, -1.5, f'pH: {element_values[0]}', fontsize=12, ha='center')
+        plt.show()
 
-    #Wyświetlanie wykresu
-    plt.show()
+    def get_element_values_and_labels(self, lake_name):
+        element_values = []
+        element_labels = []
 
-# Utwórz przycisk, aby wyświetlić wykres dla wybranego jeziora
-display_button = ttk.Button(content_frame, text="Wyświetl wykres", command=display_chart)
-display_button.pack(pady=10)
+        for row in self.sheet.iter_rows(min_row=self.EXCEL_START_ROW, max_col=self.ELEMENTS_END_COL, values_only=True):
+            if row[self.EXCEL_START_COL-1] == lake_name:
+                element_values = row[self.ELEMENTS_START_COL-1:self.ELEMENTS_END_COL]
 
-#Utwórz przycisk, aby wyświetlić mapę dla wybranego jeziora
-def display_map():
-    # Pobierz nazwę wybranego jeziora
-    nazwa_jeziora = selected_lake.get()
+        for row in self.sheet.iter_rows(min_row=self.EXCEL_START_ROW-1, max_row=self.EXCEL_START_ROW-1, max_col=self.ELEMENTS_END_COL, values_only=True):
+            element_labels = row[self.ELEMENTS_START_COL-1:self.ELEMENTS_END_COL]
+        
+        return element_values, element_labels
 
-    # Usuń myślniki i wszystko po nich z nazwy jeziora
-    nazwa_jeziora = nazwa_jeziora.split("-")[0].strip()
+    def get_selected_element_values_and_labels(self, element_values, element_labels):
+        selected_values = []
+        selected_labels = []
 
-    # Użyj geokodera, aby pobrać koordynaty geograficzne dla wybranego jeziora
-    user_agent = UserAgent()
-    geolocator = Nominatim(user_agent=user_agent.random)
-    location = geolocator.geocode(nazwa_jeziora)
-    if location is not None:
+        for i, var in enumerate(self.element_vars):
+            if var.get():
+                selected_values.append(element_values[i])
+                selected_labels.append(element_labels[i])
+        
+        return selected_values, selected_labels
+
+    def display_map(self):
+        lake_name = self.selected_lake.get().split("-")[0].strip()
+        location = self.get_location(lake_name)
+        
+        if location is not None:
+            self.show_map(location, lake_name)
+        else:
+            print("Nie udało się odnaleźć koordynat dla tego jeziora.")
+
+    def get_location(self, lake_name):
+        user_agent = UserAgent()
+        geolocator = Nominatim(user_agent=user_agent.random)
+        location = geolocator.geocode(lake_name)
+        
+        return location
+
+    def show_map(self, location, lake_name):
         lat, lon = location.latitude, location.longitude
-        # Utwórz mapę z wybranym jeziorem
-        jeziora_mapa = folium.Map(location=[lat, lon], zoom_start=13)
+        lake_map = folium.Map(location=[lat, lon], zoom_start=13)
 
-        # Dodaj marker z nazwą jeziora i koordynatami
         folium.Marker(
             location=[lat, lon],
-            popup=nazwa_jeziora,
+            popup=lake_name,
             icon=folium.Icon(color='blue')
-        ).add_to(jeziora_mapa)
+        ).add_to(lake_map)
 
-        # Dodaj interaktywny popup z koordynatami
-        folium.LatLngPopup().add_to(jeziora_mapa)
+        folium.LatLngPopup().add_to(lake_map)
+        lake_map.save('lake_map.html')
+        webbrowser.open('lake_map.html')
 
-        # Wyświetl mapę w przeglądarce
-        jeziora_mapa.save('jeziora_mapa.html')
-        webbrowser.open('jeziora_mapa.html')
-    else:
-        print("Nie udało się odnaleźć koordynat dla tego jeziora.")
+    def run(self):
+        self.root.mainloop()
 
-# Utwórz przycisk, aby wyświetlić mapę dla wybranego jeziora
-display_map_button = ttk.Button(content_frame, text="Wyświetl mapę", command=display_map)
-display_map_button.pack(pady=10)    
-
-def on_close():
-    print("Zamykanie programu...")
-    root.destroy()
-    
-# Obsługa zdarzenia zamknięcia okna
-root.protocol("WM_DELETE_WINDOW", on_close)
-
-#Uruchom GUI
-root.mainloop()
+if __name__ == "__main__":
+    app = LakeDataApp()
+    app.run()
