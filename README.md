@@ -4,8 +4,7 @@
 
 My project is an interactive application for analyzing data regarding the content of chemical elements in the sediments of various lakes in Poland. The application uses data contained in an Excel file, which includes information about the names of the lakes, pH values, and the content of various chemical elements.
 
-![image](https://github.com/roberts911/LakeSedimentAnalysis/assets/85109223/6d37d5fd-4d98-4901-8061-78c4e40bb1f2)
-
+![image](https://github.com/roberts911/LakeSedimentAnalysis/assets/85109223/4f199b6a-d361-4ded-a8d0-6822072b78f8)
 
 ## Functionalities
 
@@ -36,19 +35,19 @@ Command to install libraries:
 1. Run the main.py file.
 2. Select a lake from the dropdown list.
 
-![image](https://github.com/roberts911/LakeSedimentAnalysis/assets/85109223/a2f20e19-244f-47a9-8d52-4cf5185b9cec)
+![image](https://github.com/roberts911/LakeSedimentAnalysis/assets/85109223/0ed9caaa-f425-49d4-bc1b-064fa98bc30a)
 
 3. Select the elements you want to include in your analysis.
 
-![image](https://github.com/roberts911/LakeSedimentAnalysis/assets/85109223/b4f85e28-dd51-44fe-b59f-a932ab3d9157)
+![image](https://github.com/roberts911/LakeSedimentAnalysis/assets/85109223/fcb016c1-16bd-4b77-962e-0875933cbc89)
 
 4. Click the "Display Chart" button to generate a pie chart.
 
-![image](https://github.com/roberts911/LakeSedimentAnalysis/assets/85109223/53575020-7b93-47d1-b09d-8502d161bfcc)
+![image](https://github.com/roberts911/LakeSedimentAnalysis/assets/85109223/2d9e5d2b-235a-48ad-9bd3-4a84a5c50ea3)
 
 5. Click the "Display Map" button to generate a map with the location of the chosen lake.
 
-![image](https://github.com/roberts911/LakeSedimentAnalysis/assets/85109223/2fc0d394-0e33-4e3a-8da4-0d711e46b70b)
+![image](https://github.com/roberts911/LakeSedimentAnalysis/assets/85109223/83be8b51-4459-4050-b00f-e1ac7e6dd335)
 
 ## Authors
 
