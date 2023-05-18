@@ -1,4 +1,4 @@
-# Lake Sediment Analysis - README
+# Lake Sediment Analysis
 
 ## Project Description
 
