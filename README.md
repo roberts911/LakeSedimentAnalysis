@@ -29,7 +29,7 @@ To use this application, the following libraries must be installed:
 
 Command to install libraries:
 
-    pip install tkinter openpyxl matplotlib folium geopy fake_useragent
+    pip install openpyxl matplotlib folium geopy fake_useragent
 
 ## Instructions
 
