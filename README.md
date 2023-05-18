@@ -1,21 +1,21 @@
-# Analiza Osadow Jezior - README
+# Lake Sediment Analysis - README
 
-## Opis projektu
+## Project Description
 
-Mój projekt to interaktywna aplikacja do analizy danych dotyczących zawartości pierwiastków chemicznych w osadach różnych jezior w Polsce. Aplikacja korzysta z danych zawartych w pliku Excel, który zawiera informacje o nazwach jezior, wartościach pH oraz zawartości różnych pierwiastków chemicznych.
+My project is an interactive application for analyzing data regarding the content of chemical elements in the sediments of various lakes in Poland. The application uses data contained in an Excel file, which includes information about the names of the lakes, pH values, and the content of various chemical elements.
 
-## Funkcjonalności
+## Functionalities
 
-Aplikacja umożliwia:
+The application enables:
 
-1. **Wybór jeziora** - użytkownik może wybrać jedno z dostępnych jezior z rozwijanej listy.
-2. **Wybór pierwiastków** - użytkownik może wybrać, które pierwiastki chce uwzględnić w swojej analizie.
-3. **Wyświetlanie wykresu kołowego** - po wybraniu jeziora i pierwiastków, użytkownik może wygenerować wykres kołowy, który pokazuje zawartość każdego z wybranych pierwiastków w osadach wybranego jeziora.
-4. **Wyświetlanie mapy** - po wybraniu jeziora, użytkownik może wygenerować mapę, która pokazuje lokalizację wybranego jeziora.
+1. **Lake selection** - users can choose one of the available lakes from a dropdown list.
+2. **Element selection** - users can choose which elements they want to include in their analysis.
+3. **Displaying a pie chart** - after selecting a lake and elements, users can generate a pie chart that shows the content of each of the chosen elements in the sediments of the selected lake.
+4. **Displaying a map** - after selecting a lake, users can generate a map that shows the location of the chosen lake.
 
-## Wymagania
+## Requirements
 
-Aby korzystać z tej aplikacji, musisz mieć zainstalowane następujące biblioteki:
+To use this application, the following libraries must be installed:
 
 - `tkinter`
 - `openpyxl`
@@ -24,14 +24,14 @@ Aby korzystać z tej aplikacji, musisz mieć zainstalowane następujące bibliot
 - `geopy`
 - `fake_useragent`
 
-## Instrukcja
+## Instructions
 
-1. Uruchom plik `main.py`.
-2. Wybierz jezioro z rozwijanej listy.
-3. Wybierz pierwiastki, które chcesz uwzględnić w swojej analizie.
-4. Kliknij przycisk "Wyświetl wykres", aby wygenerować wykres kołowy.
-5. Kliknij przycisk "Wyświetl mapę", aby wygenerować mapę z lokalizacją wybranego jeziora.
+1. Run the main.py file.
+2. Select a lake from the dropdown list.
+3. Select the elements you want to include in your analysis.
+4. Click the "Display Chart" button to generate a pie chart.
+5. Click the "Display Map" button to generate a map with the location of the chosen lake.
 
-## Autorzy
+## Authors
 
-Projekt został stworzony przez Robert Siurek.
+This project was created by Robert Siurek.
