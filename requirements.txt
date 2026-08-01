@@ -1,0 +1,5 @@
+openpyxl==latest
+matplotlib==latest
+folium==latest
+geopy==latest
+fake_useragent==latest
